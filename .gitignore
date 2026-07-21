@@ -1,4 +1,12 @@
-# Pythono
+# Ignore raw datasets and temporary uploads
+data/
+temp_uploads/
+
+# Ignore Python artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/# Pythono
 __pycache__/
 *.py[cod]
 *$py.class
@@ -42,3 +50,5 @@ dist/
 # Coverage reports
 .coverage
 htmlcov/
+.envo
+.env
