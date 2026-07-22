@@ -19,13 +19,32 @@ officer for more help."""
 
 def explain_diagnosis(diagnosis: dict, treatment: dict) -> str:
     """First message to the farmer: explains what's wrong and what to do."""
+    
+    # Safely extract fields with fallbacks
+    disease_name = treatment.get("name") or treatment.get("disease") or diagnosis.get("disease") or "Plant condition"
+    confidence_val = diagnosis.get("confidence", 0.9)
+    if isinstance(confidence_val, float) and confidence_val <= 1.0:
+        confidence_pct = f"{confidence_val * 100:.0f}%"
+    else:
+        confidence_pct = f"{confidence_val}%"
+        
+    cause = treatment.get("cause", "Fungal/environmental factors")
+    symptoms = treatment.get("symptoms", "Visible marks on leaves")
+    treatment_steps = treatment.get("treatment") or treatment.get("organic_treatment") or "Keep farm clean and monitor"
+    
+    chemicals_list = treatment.get("chemicals", [])
+    if isinstance(chemicals_list, list):
+        chemicals_str = ", ".join(chemicals_list) if chemicals_list else "None required"
+    else:
+        chemicals_str = str(chemicals_list)
+
     user_prompt = f"""
-Disease detected: {treatment['name']}
-Confidence: {diagnosis['confidence'] * 100:.0f}%
-Cause: {treatment['cause']}
-Symptoms: {treatment['symptoms']}
-Recommended treatment: {treatment['treatment']}
-Chemicals to use: {', '.join(treatment['chemicals'])}
+Disease detected: {disease_name}
+Confidence: {confidence_pct}
+Cause: {cause}
+Symptoms: {symptoms}
+Recommended treatment: {treatment_steps}
+Chemicals to use: {chemicals_str}
 
 Explain this to the farmer for Pidgin. Tell am wetin dey worry the plant,
 why e happen, and wetin e go do to solve am. End by asking if e get any

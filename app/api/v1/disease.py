@@ -5,7 +5,7 @@ from fastapi import APIRouter, UploadFile, File
 import shutil
 from pathlib import Path
 
-from domains.disease_diagnosis.diagnose import diagnose
+from domains.disease_diagnosis.diagnose import diagnose_leaf as diagnose
 from domains.disease_diagnosis.treatment import get_treatment
 from domains.disease_diagnosis.conversation import explain_diagnosis
 
@@ -22,11 +22,20 @@ async def diagnose_plant(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     diagnosis = diagnose(str(image_path))
-    treatment = get_treatment(diagnosis["disease_key"])
+    
+    # Safely extract the disease key regardless of internal dictionary structure
+    disease_key = (
+        diagnosis.get("disease_key") 
+        or diagnosis.get("disease") 
+        or diagnosis.get("label") 
+        or "Healthy"
+    )
+
+    treatment = get_treatment(disease_key)
     explanation = explain_diagnosis(diagnosis, treatment)
 
     return {
         "diagnosis": diagnosis,
         "treatment": treatment,
         "message": explanation,
-   }
+    }
