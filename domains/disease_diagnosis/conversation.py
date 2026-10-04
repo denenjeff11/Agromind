@@ -1,10 +1,13 @@
 """
 LLM conversation layer using Gemini (new google-genai SDK).
 Explains diagnosis + treatment in Pidgin.
+Includes automatic retry for temporary 503 server overload.
 """
 import os
+import time
 from google import genai
 from google.genai import types
+from google.genai import errors
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
@@ -15,6 +18,24 @@ You dey explain plant disease and treatment for simple Nigerian Pidgin English,
 short and clear, no long grammar. Be warm and respectful, like you dey talk to
 your own family farmer. Only recommend chemicals/treatment that dey inside the
 data wey dem give you - no add your own chemical suggestion."""
+
+
+def _generate_with_retry(contents, config, max_retries=4):
+    """Calls Gemini, automatically retrying on temporary 503 overload errors."""
+    delay = 2
+    for attempt in range(max_retries):
+        try:
+            return client.models.generate_content(
+                model=MODEL_NAME,
+                contents=contents,
+                config=config,
+            )
+        except errors.ServerError as e:
+            if attempt == max_retries - 1:
+                raise
+            print(f"Gemini busy (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+            time.sleep(delay)
+            delay *= 2  # back off longer each retry
 
 
 def explain_diagnosis(diagnosis: dict, treatment: dict) -> str:
@@ -36,8 +57,7 @@ Explain this to the farmer for Pidgin. Tell am wetin dey worry the plant,
 why e happen, and wetin e go do to solve am. End by asking if e get any
 question, or how many plants dey affected.
 """
-    response = client.models.generate_content(
-        model=MODEL_NAME,
+    response = _generate_with_retry(
         contents=user_prompt,
         config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
     )
@@ -55,5 +75,16 @@ Only use this data for chemical advice.
         config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT + context),
         history=chat_history,
     )
-    response = chat.send_message(farmer_message)
-    return response.text
+
+    delay = 2
+    max_retries = 4
+    for attempt in range(max_retries):
+        try:
+            response = chat.send_message(farmer_message)
+            return response.text
+        except errors.ServerError:
+            if attempt == max_retries - 1:
+                raise
+            print(f"Gemini busy (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+            time.sleep(delay)
+            delay *= 2
