@@ -1,4 +1,9 @@
 fastapi
 uvicorn[standard]
 python-multipart
-groq
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+pillow
+google-generativeai
+python-dotenv

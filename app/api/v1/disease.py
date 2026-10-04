@@ -39,3 +39,4 @@ async def diagnose_plant(file: UploadFile = File(...)):
         "treatment": treatment,
         "message": explanation,
     }
+
