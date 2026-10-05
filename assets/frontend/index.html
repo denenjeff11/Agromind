@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agromind - Maize Doctor</title>
+<style>
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    background: #f4f8f3;
+    margin: 0;
+    padding: 20px;
+    color: #1a2e1a;
+  }
+  .container { max-width: 480px; margin: 0 auto; }
+  h1 { font-size: 22px; color: #2d5a27; text-align: center; }
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  input[type="file"] { width: 100%; margin-bottom: 12px; }
+  button {
+    width: 100%;
+    background: #2d5a27;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:disabled { background: #a0a0a0; }
+  .result { white-space: pre-wrap; line-height: 1.5; font-size: 15px; }
+  .confidence { color: #2d5a27; font-weight: 600; }
+  .loading { text-align: center; color: #777; padding: 20px; }
+  img.preview { width: 100%; border-radius: 10px; margin-bottom: 12px; }
+  .chat-box { margin-top: 10px; }
+  .chat-input {
+    width: 100%; padding: 10px; border-radius: 8px;
+    border: 1px solid #ccc; box-sizing: border-box; margin-bottom: 8px;
+  }
+  .chat-msg { margin-bottom: 10px; padding: 10px; border-radius: 8px; }
+  .chat-msg.farmer { background: #e8f0e6; text-align: right; }
+  .chat-msg.ai { background: #f0f0f0; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🌽 Agromind - Maize Doctor</h1>
+
+  <div class="card" id="uploadCard">
+    <p>Snap or choose a photo of your maize leaf</p>
+    <input type="file" id="imageInput" accept="image/*" capture="environment">
+    <button id="diagnoseBtn">Diagnose Plant</button>
+  </div>
+
+  <div class="card hidden" id="loadingCard">
+    <div class="loading">🔍 Checking your plant... abeg wait small...</div>
+  </div>
+
+  <div class="card hidden" id="resultCard">
+    <img class="preview" id="previewImg">
+    <p><strong id="diseaseName"></strong> — <span class="confidence" id="confidenceText"></span></p>
+    <div class="result" id="messageText"></div>
+
+    <div class="chat-box">
+      <div id="chatMessages"></div>
+      <input type="text" class="chat-input" id="followUpInput" placeholder="Ask a question...">
+      <button id="followUpBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "http://127.0.0.1:8000/api/v1";
+
+let currentDiagnosis = null;
+let chatHistory = [];
+
+const imageInput = document.getElementById('imageInput');
+const diagnoseBtn = document.getElementById('diagnoseBtn');
+const uploadCard = document.getElementById('uploadCard');
+const loadingCard = document.getElementById('loadingCard');
+const resultCard = document.getElementById('resultCard');
+
+diagnoseBtn.addEventListener('click', async () => {
+  const file = imageInput.files[0];
+  if (!file) {
+    alert("Please choose a photo first");
+    return;
+  }
+
+  document.getElementById('previewImg').src = URL.createObjectURL(file);
+  uploadCard.classList.add('hidden');
+  loadingCard.classList.remove('hidden');
+  resultCard.classList.add('hidden');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await fetch(`${API_BASE}/diagnose`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+    const data = await res.json();
+
+    currentDiagnosis = data.diagnosis;
+    chatHistory = [];
+
+    document.getElementById('diseaseName').textContent = data.diagnosis.disease_name;
+    document.getElementById('confidenceText').textContent =
+      `${Math.round(data.diagnosis.confidence * 100)}% sure`;
+    document.getElementById('messageText').textContent = data.message;
+    document.getElementById('chatMessages').innerHTML = '';
+
+    loadingCard.classList.add('hidden');
+    resultCard.classList.remove('hidden');
+  } catch (err) {
+    loadingCard.classList.add('hidden');
+    uploadCard.classList.remove('hidden');
+    alert("Something went wrong: " + err.message);
+  }
+});
+
+document.getElementById('followUpBtn').addEventListener('click', async () => {
+  const input = document.getElementById('followUpInput');
+  const question = input.value.trim();
+  if (!question || !currentDiagnosis) return;
+
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.innerHTML += `<div class="chat-msg farmer">${question}</div>`;
+  input.value = '';
+
+  try {
+    const res = await fetch(`${API_BASE}/diagnose/followup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        disease_key: currentDiagnosis.disease_key,
+        confidence: currentDiagnosis.confidence,
+        is_healthy: currentDiagnosis.is_healthy,
+        chat_history: chatHistory,
+        question: question,
+      }),
+    });
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+    const data = await res.json();
+
+    chatMessages.innerHTML += `<div class="chat-msg ai">${data.answer}</div>`;
+    chatHistory.push({ role: 'user', parts: [{ text: question }] });
+    chatHistory.push({ role: 'model', parts: [{ text: data.answer }] });
+  } catch (err) {
+    chatMessages.innerHTML += `<div class="chat-msg ai">Sorry, something went wrong. Try again.</div>`;
+  }
+});
+</script>
+</body>
+</html>
