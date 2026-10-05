@@ -1,9 +1,9 @@
-fastapi
-uvicorn[standard]
-python-multipart
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch
-torchvision
-pillow
-google-generativeai
-python-dotenv
+torch==2.14.1+cpu
+torchvision==0.29.1+cpu
+pillow==12.3.0
+google-genai==2.28.0
+python-dotenv==1.2.4
