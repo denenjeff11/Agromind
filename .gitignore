@@ -19,9 +19,12 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Data / temporary files
-data/
+# Data / temporary files (but keep essential curated data)
+data/raw/
+data/processed/
 temp_uploads/
+!data/external/
+!data/external/**
 
 # Databases
 *.db

@@ -1,0 +1,66 @@
+{
+  "leaf_blight": {
+    "crop": "maize",
+    "name": "Leaf Blight",
+    "cause": "Fungal disease, thrives in humid, wet conditions",
+    "symptoms": "Long grey-green or tan cigar-shaped lesions on leaves",
+    "treatment": "Apply a fungicide early once lesions are spotted. Rotate crops next season, avoid planting maize after maize. Clear old crop debris after harvest.",
+    "chemicals": ["Mancozeb 80WP", "Propiconazole-based fungicide"]
+  },
+  "leaf_spot": {
+    "crop": "maize",
+    "name": "Gray Leaf Spot",
+    "cause": "Fungal disease, favored by humidity and crop debris left in the field",
+    "symptoms": "Small rectangular tan-to-gray lesions bound by leaf veins",
+    "treatment": "Apply fungicide at early signs. Clear old crop debris after harvest. Rotate crops.",
+    "chemicals": ["Azoxystrobin-based fungicide", "Mancozeb 80WP"]
+  },
+  "common_rust": {
+    "crop": "maize",
+    "name": "Common Rust",
+    "cause": "Fungal disease favored by cool, humid weather",
+    "symptoms": "Small reddish-brown raised pustules scattered on both sides of leaves",
+    "treatment": "Apply fungicide if severe. Usually manageable with resistant varieties and good spacing for airflow.",
+    "chemicals": ["Propiconazole-based fungicide"]
+  },
+  "streak_virus": {
+    "crop": "maize",
+    "name": "Maize Streak Virus",
+    "cause": "Spread by leafhopper insects, common after leafhoppers move from grass to young maize",
+    "symptoms": "Pale yellow streaks running along the leaf veins, stunted growth",
+    "treatment": "No chemical cure once infected. Control leafhopper vector with imidacloprid-based insecticide. Remove and destroy infected plants early to stop spread. Plant resistant maize varieties next season.",
+    "chemicals": ["Imidacloprid 200SL (seed treatment or spray)"]
+  },
+  "fall_armyworm": {
+    "crop": "maize",
+    "name": "Fall Armyworm",
+    "cause": "Pest — caterpillar that feeds on leaves and burrows into the whorl, invasive to Africa since 2016",
+    "symptoms": "Ragged holes in leaves, window-like clear patches from small caterpillars, sawdust-like droppings in the whorl",
+    "treatment": "Apply insecticide directly into the whorl in early morning or evening. Check plants regularly, catch it early before it burrows deep into the stalk.",
+    "chemicals": ["Emamectin benzoate", "Chlorantraniliprole-based insecticide"]
+  },
+  "grasshopper": {
+    "crop": "maize",
+    "name": "Grasshopper damage",
+    "cause": "Pest — grasshoppers feeding directly on leaf tissue",
+    "symptoms": "Irregular chewed edges on leaves, sometimes entire leaves stripped in heavy infestations",
+    "treatment": "Apply insecticide if infestation is heavy. Light infestations often don't need chemical control. Removing nearby tall grass can reduce grasshopper populations.",
+    "chemicals": ["Cypermethrin-based insecticide", "Lambda-Cyhalothrin 50g/l"]
+  },
+  "leaf_beetle": {
+    "crop": "maize",
+    "name": "Leaf Beetle damage",
+    "cause": "Pest — beetles feeding on leaf surface and tissue",
+    "symptoms": "Small round or irregular holes scattered across the leaf, skeletonized patches where only veins remain",
+    "treatment": "Apply insecticide if damage is spreading. Monitor regularly during early growth stages when plants are most vulnerable.",
+    "chemicals": ["Cypermethrin 4% + Profenofos 40%", "Imidacloprid 200g/l"]
+  },
+  "healthy": {
+    "crop": "maize",
+    "name": "Healthy",
+    "cause": "No disease or pest detected",
+    "symptoms": "Normal green leaf color, no lesions, no visible pest damage",
+    "treatment": "No treatment needed. Continue regular monitoring and good field hygiene to keep it this way.",
+    "chemicals": []
+  }
+}
